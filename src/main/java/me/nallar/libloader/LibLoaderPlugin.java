@@ -176,6 +176,7 @@ public class LibLoaderPlugin implements Plugin<Project> {
 			put(attr, "LibLoader-name" + i, av.name);
 			put(attr, "LibLoader-classifier" + i, av.classifier);
 			put(attr, "LibLoader-version" + i, av.version.toString());
+			i++;
 		}
 
 		try (val oos = new ObjectOutputStream(new FileOutputStream(new File(project.getBuildDir(), "libloader-cache.obj")))) {
