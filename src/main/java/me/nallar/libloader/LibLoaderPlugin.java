@@ -17,6 +17,28 @@ public class LibLoaderPlugin implements Plugin<Project> {
 	private LibLoaderGradleExtension extension = new LibLoaderGradleExtension();
 	private Configuration libLoaderConfig;
 
+	private static String dash(String s) {
+		if (s == null || s.isEmpty())
+			return "";
+		return '-' + s;
+	}
+
+	@SneakyThrows
+	private static String sha512(File f) {
+		val digest = MessageDigest.getInstance("SHA-512");
+		byte[] hash = digest.digest(Files.readAllBytes(f.toPath()));
+
+		val hexString = new StringBuilder();
+		//noinspection ForLoopReplaceableByForEach
+		for (int i = 0; i < hash.length; i++) {
+			String hex = Integer.toHexString(0xff & hash[i]);
+			if (hex.length() == 1) hexString.append('0');
+			hexString.append(hex);
+		}
+
+		return hexString.toString();
+	}
+
 	@SneakyThrows
 	@Override
 	public void apply(Project project) {
@@ -26,7 +48,7 @@ public class LibLoaderPlugin implements Plugin<Project> {
 		compileOnly.extendsFrom(libLoaderConfig);
 		project.getRepositories().add(project.getRepositories().maven(it -> it.setUrl("https://repo.nallar.me/")));
 		project.getDependencies().add("compileOnly", "me.nallar.libloader:LibLoader:0.1-SNAPSHOT");
-		project.getExtensions().add("modpatcher", extension);
+		project.getExtensions().add("libloader", extension);
 
 		project.afterEvaluate(this::afterEvaluate);
 	}
@@ -70,28 +92,6 @@ public class LibLoaderPlugin implements Plugin<Project> {
 				i++;
 			}
 		}
-	}
-
-	private static String dash(String s) {
-		if (s == null || s.isEmpty())
-			return "";
-		return '-' + s;
-	}
-
-	@SneakyThrows
-	private static String sha512(File f) {
-		val digest = MessageDigest.getInstance("SHA-512");
-		byte[] hash = digest.digest(Files.readAllBytes(f.toPath()));
-
-		val hexString = new StringBuilder();
-		//noinspection ForLoopReplaceableByForEach
-		for (int i = 0; i < hash.length; i++) {
-			String hex = Integer.toHexString(0xff & hash[i]);
-			if(hex.length() == 1) hexString.append('0');
-			hexString.append(hex);
-		}
-
-		return hexString.toString();
 	}
 
 	@Data
