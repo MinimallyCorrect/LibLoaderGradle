@@ -52,7 +52,7 @@ public class LibLoaderPlugin implements Plugin<Project> {
 		project.getPlugins().apply("java");
 		libLoaderConfig = project.getConfigurations().create("libLoader");
 		project.getConfigurations().getByName("compileOnly").extendsFrom(libLoaderConfig);
-		project.getConfigurations().getByName("testCompileOnly").extendsFrom(libLoaderConfig);
+		project.getConfigurations().getByName("testCompile").extendsFrom(libLoaderConfig);
 		project.getRepositories().add(project.getRepositories().maven(it -> it.setUrl("https://repo.nallar.me/")));
 		project.getDependencies().add("compileOnly", "me.nallar.libloader:LibLoader:0.1-SNAPSHOT");
 		project.getExtensions().add("libLoader", extension);
