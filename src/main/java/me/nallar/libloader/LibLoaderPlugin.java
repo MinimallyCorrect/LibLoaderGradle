@@ -134,7 +134,7 @@ public class LibLoaderPlugin implements Plugin<Project> {
 			val currentVersion = Version.of(id.getVersion());
 			val key = id.getGroup() + '.' + id.getName() + dash(resolvedArtifact.getClassifier());
 			val alreadyVersion = alreadyLibLoaded.get(key);
-			if (alreadyVersion != null && alreadyVersion.version.compareTo(currentVersion) > 0)
+			if (alreadyVersion != null && alreadyVersion.version.compareTo(currentVersion) >= 0)
 				continue;
 			alreadyLibLoaded.remove(key);
 
