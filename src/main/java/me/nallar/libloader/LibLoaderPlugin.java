@@ -107,18 +107,17 @@ public class LibLoaderPlugin implements Plugin<Project> {
 						continue;
 					val manifest = new Manifest(zis);
 					int j = 0;
+					val main = manifest.getMainAttributes();
 					String group;
-					while ((group = (String) manifest.getMainAttributes().get("LibLoader-group" + j)) != null) {
-						val name = (String) manifest.getMainAttributes().get("LibLoader-name" + j);
-						val classifier = (String) manifest.getMainAttributes().get("LibLoader-classifier" + j);
-						val version = Version.of((String) manifest.getMainAttributes().get("LibLoader-version" + j));
+					while ((group = main.getValue("LibLoader-group" + j)) != null) {
+						val name = main.getValue("LibLoader-name" + j);
+						val classifier = main.getValue("LibLoader-classifier" + j);
+						val version = Version.of(main.getValue("LibLoader-version" + j));
 						String key = group + '.' + name + dash(classifier);
 						val artifactVersion = new ArtifactVersion(group, name, classifier, version);
 						val previous = alreadyLibLoaded.put(key, artifactVersion);
 						if (previous.version.compareTo(version) > 0)
 							alreadyLibLoaded.put(key, previous);
-						if (extension.log)
-							System.out.println("Added " + key + " to alreadyLibLoaded");
 						j++;
 					}
 				}
