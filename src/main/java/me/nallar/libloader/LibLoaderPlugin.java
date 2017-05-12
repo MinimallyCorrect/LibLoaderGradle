@@ -116,7 +116,7 @@ public class LibLoaderPlugin implements Plugin<Project> {
 						String key = group + '.' + name + dash(classifier);
 						val artifactVersion = new ArtifactVersion(group, name, classifier, version);
 						val previous = alreadyLibLoaded.put(key, artifactVersion);
-						if (previous.version.compareTo(version) > 0)
+						if (previous != null && previous.version.compareTo(version) > 0)
 							alreadyLibLoaded.put(key, previous);
 						j++;
 					}
