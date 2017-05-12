@@ -7,6 +7,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolvedArtifact;
+import org.gradle.api.java.archives.Attributes;
 import org.gradle.jvm.tasks.Jar;
 
 import java.io.*;
@@ -39,6 +40,12 @@ public class LibLoaderPlugin implements Plugin<Project> {
 		return hexString.toString();
 	}
 
+	private static void put(Attributes attr, String key, String value) {
+		if (value != null && !value.isEmpty()) {
+			attr.put(key, value);
+		}
+	}
+
 	@SneakyThrows
 	@Override
 	public void apply(Project project) {
@@ -63,12 +70,12 @@ public class LibLoaderPlugin implements Plugin<Project> {
 			int i = 0;
 			for (ResolvedArtifact resolvedArtifact : c.getResolvedArtifacts()) {
 				val id = resolvedArtifact.getModuleVersion().getId();
-				attr.put("LibLoader-group" + i, id.getGroup());
-				attr.put("LibLoader-name" + i, id.getName());
-				attr.put("LibLoader-classifier" + i, resolvedArtifact.getClassifier());
-				attr.put("LibLoader-version" + i, id.getVersion());
+				put(attr, "LibLoader-group" + i, id.getGroup());
+				put(attr, "LibLoader-name" + i, id.getName());
+				put(attr, "LibLoader-classifier" + i, resolvedArtifact.getClassifier());
+				put(attr, "LibLoader-version" + i, id.getVersion());
 				val hash = sha512(resolvedArtifact.getFile());
-				attr.put("LibLoader-sha512hash" + i, hash);
+				put(attr, "LibLoader-sha512hash" + i, hash);
 
 				boolean urlWorks = false;
 				if (!extension.bundleDependencies && !id.getVersion().toLowerCase().endsWith("-snapshot")) {
@@ -76,18 +83,18 @@ public class LibLoaderPlugin implements Plugin<Project> {
 						+ id.getName() + dash(id.getVersion()) + '/' + id.getName() + dash(id.getVersion())
 						+ dash(resolvedArtifact.getClassifier()) + '.' + resolvedArtifact.getExtension();
 
-					attr.put("LibLoader-url" + i, url);
+					put(attr, "LibLoader-url" + i, url);
 					urlWorks = true;
 					throw new UnsupportedOperationException();
 				}
 
 				if (!urlWorks) {
-					attr.put("LibLoader-file" + i, resolvedArtifact.getFile().getName());
+					put(attr, "LibLoader-file" + i, resolvedArtifact.getFile().getName());
 				}
 
 				// TODO: resolve URLs somehow? Gradle API doesn't let us do this currently
-				// attr.put("LibLoader-url" + i, resolvedArtifact.);
-				attr.put("LibLoader-buildTime" + i, String.valueOf(time));
+				// put(attr, "LibLoader-url" + i, resolvedArtifact.);
+				put(attr, "LibLoader-buildTime" + i, String.valueOf(time));
 				task.from(resolvedArtifact.getFile());
 				i++;
 			}
