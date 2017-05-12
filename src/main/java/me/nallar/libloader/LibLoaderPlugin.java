@@ -10,6 +10,8 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.java.archives.Attributes;
+import org.gradle.api.plugins.MavenPlugin;
+import org.gradle.api.plugins.MavenPluginConvention;
 import org.gradle.jvm.tasks.Jar;
 
 import java.io.*;
@@ -69,8 +71,12 @@ public class LibLoaderPlugin implements Plugin<Project> {
 		}
 		project.getPlugins().apply("java");
 		project.getPlugins().apply("maven");
+		// conf2ScopeMappings.addMapping(1, configurations.myCustom, "compile")
 		libLoaderConfig = project.getConfigurations().create("libLoader");
 		project.getConfigurations().getByName("compile").extendsFrom(libLoaderConfig);
+
+		val mavenConvention = (MavenPluginConvention) project.getConvention().getPlugins().get("maven");
+		mavenConvention.getConf2ScopeMappings().addMapping(MavenPlugin.COMPILE_PRIORITY + 1, libLoaderConfig, "compile");
 
 		project.getRepositories().add(project.getRepositories().maven(it -> it.setUrl("https://repo.nallar.me/")));
 		project.getDependencies().add("compileOnly", "me.nallar.libloader:LibLoader:0.1-SNAPSHOT");
