@@ -5,7 +5,6 @@ plugins {
 }
 
 apply plugin: 'maven'
-apply plugin: 'groovy'
 
 defaultTasks 'build'
 
@@ -14,11 +13,7 @@ version = "0.1-SNAPSHOT"
 
 repositories {
 	jcenter()
-	maven { url = 'http://repo.nallar.me/' }
-	maven {
-		name = "forge"
-		url = "http://files.minecraftforge.net/maven"
-	}
+	maven { url = 'https://repo.nallar.me/' }
 }
 
 configurations.all { resolutionStrategy.cacheChangingModulesFor 30, 'seconds' }
@@ -26,6 +21,7 @@ configurations.all { resolutionStrategy.cacheChangingModulesFor 30, 'seconds' }
 dependencies {
 	provided gradleApi()
 	provided "org.projectlombok:lombok:1.16.6"
+	compile "me.nallar.libloader:LibLoader:0.1-SNAPSHOT"
 }
 
 // Source compiler configuration

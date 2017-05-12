@@ -1,8 +1,10 @@
 package me.nallar.libloader;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.val;
+import me.nallar.libloader.LibLoader.Version;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -15,6 +17,8 @@ import java.net.*;
 import java.nio.file.*;
 import java.security.*;
 import java.util.*;
+import java.util.jar.*;
+import java.util.zip.*;
 
 public class LibLoaderPlugin implements Plugin<Project> {
 	private static final Set<String> excludedGroups = new HashSet<>(Arrays.asList(
@@ -55,11 +59,11 @@ public class LibLoaderPlugin implements Plugin<Project> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@SneakyThrows
 	@Override
 	public void apply(Project project) {
 		try (val ois = new ObjectInputStream(new FileInputStream(new File(project.getBuildDir(), "libloader-cache.obj")))) {
-			//noinspection unchecked
 			cachedHashes = (Map<String, String>) ois.readObject();
 		} catch (IOException ignored) {
 		}
@@ -77,18 +81,55 @@ public class LibLoaderPlugin implements Plugin<Project> {
 
 	@SneakyThrows
 	private void afterEvaluate(Project project) {
-		PomFixer.fix(project, libLoaderConfig);
 		val c = libLoaderConfig.getResolvedConfiguration();
 
 		val time = System.currentTimeMillis();
 		val jar = (Jar) project.getTasks().getByName("jar");
 		val attr = jar.getManifest().getAttributes();
+
+		Map<String, ArtifactVersion> alreadyLibLoaded = new HashMap<>();
+		for (ResolvedArtifact resolvedArtifact : c.getResolvedArtifacts()) {
+			val id = resolvedArtifact.getModuleVersion().getId();
+
+			if (excludedGroups.contains(id.getGroup()))
+				continue;
+
+			try (val zis = new ZipInputStream(new FileInputStream(resolvedArtifact.getFile()))) {
+				ZipEntry e;
+				while ((e = zis.getNextEntry()) != null) {
+					if (!e.getName().equals("META-INF/MANIFEST.MF"))
+						continue;
+					val manifest = new Manifest(zis);
+					int j = 0;
+					String group;
+					while ((group = (String) manifest.getMainAttributes().get("LibLoader-group" + j)) != null) {
+						val name = (String) manifest.getMainAttributes().get("LibLoader-name" + j);
+						val classifier = (String) manifest.getMainAttributes().get("LibLoader-classifier" + j);
+						val version = Version.of((String) manifest.getMainAttributes().get("LibLoader-version" + j));
+						String key = group + '.' + name + '-' + classifier;
+						val artifactVersion = new ArtifactVersion(group, name, classifier, version);
+						val previous = alreadyLibLoaded.put(key, artifactVersion);
+						if (previous.version.compareTo(version) > 0)
+							alreadyLibLoaded.put(key, previous);
+						j++;
+					}
+				}
+			}
+		}
+
 		int i = 0;
 		for (ResolvedArtifact resolvedArtifact : c.getResolvedArtifacts()) {
 			val id = resolvedArtifact.getModuleVersion().getId();
 
 			if (excludedGroups.contains(id.getGroup()))
 				continue;
+
+			val currentVersion = Version.of(id.getVersion());
+			val key = id.getGroup() + '.' + id.getName() + '-' + resolvedArtifact.getClassifier();
+			val alreadyVersion = alreadyLibLoaded.get(key);
+			if (alreadyVersion != null && alreadyVersion.version.compareTo(currentVersion) > 0)
+				continue;
+			alreadyLibLoaded.remove(key);
 
 			put(attr, "LibLoader-group" + i, id.getGroup());
 			put(attr, "LibLoader-name" + i, id.getName());
@@ -121,6 +162,13 @@ public class LibLoaderPlugin implements Plugin<Project> {
 			put(attr, "LibLoader-buildTime" + i, String.valueOf(time));
 			i++;
 		}
+		for (ArtifactVersion av : alreadyLibLoaded.values()) {
+			put(attr, "LibLoader-group" + i, av.group);
+			put(attr, "LibLoader-name" + i, av.name);
+			put(attr, "LibLoader-classifier" + i, av.classifier);
+			put(attr, "LibLoader-version" + i, av.version.toString());
+		}
+
 		try (val oos = new ObjectOutputStream(new FileOutputStream(new File(project.getBuildDir(), "libloader-cache.obj")))) {
 			//noinspection unchecked
 			oos.writeObject(cachedHashes);
@@ -164,5 +212,13 @@ public class LibLoaderPlugin implements Plugin<Project> {
 	public static class LibLoaderGradleExtension {
 		public boolean bundleDependencies = false;
 		public boolean log = true;
+	}
+
+	@AllArgsConstructor
+	private static class ArtifactVersion {
+		String group;
+		String name;
+		String classifier;
+		Version version;
 	}
 }
