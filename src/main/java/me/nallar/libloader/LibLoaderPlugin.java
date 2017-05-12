@@ -163,6 +163,8 @@ public class LibLoaderPlugin implements Plugin<Project> {
 			i++;
 		}
 		for (ArtifactVersion av : alreadyLibLoaded.values()) {
+			if (extension.log)
+				System.out.println("LibLoader noted parent dependency " + av.group + '.' + av.version);
 			put(attr, "LibLoader-group" + i, av.group);
 			put(attr, "LibLoader-name" + i, av.name);
 			put(attr, "LibLoader-classifier" + i, av.classifier);
