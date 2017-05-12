@@ -103,10 +103,8 @@ public class LibLoaderPlugin implements Plugin<Project> {
 					+ id.getName() + '/' + id.getVersion() + '/' + id.getName() + dash(id.getVersion())
 					+ dash(resolvedArtifact.getClassifier()) + '.' + resolvedArtifact.getExtension();
 				val urlHash = hashFromUrl(url);
-				System.out.println("expected hash: " + hash + ", hash from url " + url + " " + urlHash);
-				if (!hash.equals(urlHash)) {
+				if (!hash.equals(urlHash))
 					url = null;
-				}
 			}
 
 			if (url != null) {
@@ -116,8 +114,9 @@ public class LibLoaderPlugin implements Plugin<Project> {
 				jar.from(resolvedArtifact.getFile());
 			}
 
-			System.out.println("LibLoader included " + id.getGroup() + '.' + id.getName() + ". "
-				+ ((url == null) ? " Bundled in jar." : " URL set to " + url));
+			if (extension.log)
+				System.out.println("LibLoader included " + id.getGroup() + '.' + id.getName() + ". "
+					+ ((url == null) ? "Bundled in jar." : "URL set to " + url));
 
 			put(attr, "LibLoader-buildTime" + i, String.valueOf(time));
 			i++;
@@ -164,5 +163,6 @@ public class LibLoaderPlugin implements Plugin<Project> {
 	@Data
 	public static class LibLoaderGradleExtension {
 		public boolean bundleDependencies = false;
+		public boolean log = true;
 	}
 }
