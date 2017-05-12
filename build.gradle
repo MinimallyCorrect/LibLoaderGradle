@@ -5,6 +5,7 @@ plugins {
 }
 
 apply plugin: 'maven'
+apply plugin: 'groovy'
 
 defaultTasks 'build'
 
