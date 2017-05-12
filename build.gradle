@@ -1,0 +1,71 @@
+plugins {
+	id "com.gradle.plugin-publish" version "0.9.2"
+	id 'nebula.provided-base' version '3.0.3'
+	id "me.tatarka.retrolambda" version "3.2.4"
+}
+
+apply plugin: 'maven'
+
+defaultTasks 'build'
+
+group="me.nallar.libloader"
+version = "0.1-SNAPSHOT"
+
+repositories {
+	jcenter()
+	maven { url = 'http://repo.nallar.me/' }
+	maven {
+		name = "forge"
+		url = "http://files.minecraftforge.net/maven"
+	}
+}
+
+configurations.all { resolutionStrategy.cacheChangingModulesFor 30, 'seconds' }
+
+dependencies {
+	provided gradleApi()
+	provided "org.projectlombok:lombok:1.16.6"
+}
+
+// Source compiler configuration
+tasks.withType(JavaCompile) {
+	sourceCompatibility = 8
+	targetCompatibility = 8
+	options.with {
+		deprecation = true
+		encoding = 'UTF-8'
+		compilerArgs << "-Xlint:all" << "-Xlint:-path" << "-Xlint:-processing"
+	}
+}
+
+ext.buildNumber = System.getenv("BUILD_NUMBER") ?: 0
+ext.ciSystem = System.getenv("JENKINS_URL") ? 'Jenkins' : 'unknown'
+ext.commit = System.getenv("GIT_COMMIT") ?: 'unknown'
+
+jar.manifest.mainAttributes (
+	"Built-By": System.properties['user.name'],
+	"Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
+	"Implementation-Title": name,
+	"Implementation-Version": version + "+" + ciSystem + "-b" + buildNumber + ".git-" + commit,
+)
+
+jar {
+	baseName = project.name
+}
+
+artifacts {
+	archives jar
+}
+
+pluginBundle {
+	website = 'http://www.gradle.org/'
+	vcsUrl = 'https://github.com/nallar/LibLoaderGradle'
+	description = 'Gradle plugin for LibLoader'
+	tags = ['minecraft']
+	plugins << {
+		modpatcher {
+			id = 'me.nallar.libloader.LibLoaderGradle'
+			displayName = 'LibLoader Gradle Plugin'
+		}
+	}
+}
