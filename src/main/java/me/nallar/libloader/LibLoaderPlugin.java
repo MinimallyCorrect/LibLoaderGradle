@@ -184,6 +184,16 @@ public class LibLoaderPlugin implements Plugin<Project> {
 			oos.writeObject(cachedHashes);
 		} catch (IOException ignored) {
 		}
+
+		if (extension.bundleLibLoader) {
+			val compileOnly = project.getConfigurations().getByName("compileOnly").getResolvedConfiguration();
+			for (ResolvedArtifact resolvedArtifact : compileOnly.getResolvedArtifacts()) {
+				val id = resolvedArtifact.getModuleVersion().getId();
+				if (id.getGroup().equals("me.nallar.libloader") && id.getName().equals("LibLoader")) {
+					jar.from(project.zipTree(resolvedArtifact.getFile()));
+				}
+			}
+		}
 	}
 
 	@SneakyThrows
@@ -222,6 +232,7 @@ public class LibLoaderPlugin implements Plugin<Project> {
 	public static class LibLoaderGradleExtension {
 		public boolean bundleDependencies = false;
 		public boolean log = true;
+		public boolean bundleLibLoader = true;
 	}
 
 	@AllArgsConstructor
