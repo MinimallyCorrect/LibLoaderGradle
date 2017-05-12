@@ -112,11 +112,13 @@ public class LibLoaderPlugin implements Plugin<Project> {
 						val name = (String) manifest.getMainAttributes().get("LibLoader-name" + j);
 						val classifier = (String) manifest.getMainAttributes().get("LibLoader-classifier" + j);
 						val version = Version.of((String) manifest.getMainAttributes().get("LibLoader-version" + j));
-						String key = group + '.' + name + '-' + classifier;
+						String key = group + '.' + name + dash(classifier);
 						val artifactVersion = new ArtifactVersion(group, name, classifier, version);
 						val previous = alreadyLibLoaded.put(key, artifactVersion);
 						if (previous.version.compareTo(version) > 0)
 							alreadyLibLoaded.put(key, previous);
+						if (extension.log)
+							System.out.println("Added " + key + " to alreadyLibLoaded");
 						j++;
 					}
 				}
@@ -131,7 +133,7 @@ public class LibLoaderPlugin implements Plugin<Project> {
 				continue;
 
 			val currentVersion = Version.of(id.getVersion());
-			val key = id.getGroup() + '.' + id.getName() + '-' + resolvedArtifact.getClassifier();
+			val key = id.getGroup() + '.' + id.getName() + dash(resolvedArtifact.getClassifier());
 			val alreadyVersion = alreadyLibLoaded.get(key);
 			if (alreadyVersion != null && alreadyVersion.version.compareTo(currentVersion) > 0)
 				continue;
