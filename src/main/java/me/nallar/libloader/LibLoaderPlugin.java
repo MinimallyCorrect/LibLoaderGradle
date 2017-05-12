@@ -79,7 +79,6 @@ public class LibLoaderPlugin implements Plugin<Project> {
 		val mavenConvention = (MavenPluginConvention) project.getConvention().getPlugins().get("maven");
 		mavenConvention.getConf2ScopeMappings().addMapping(MavenPlugin.COMPILE_PRIORITY + 1, libLoaderConfig, "compile");
 
-		project.getRepositories().add(project.getRepositories().maven(it -> it.setUrl("https://repo.nallar.me/")));
 		project.getDependencies().add("compileOnly", "me.nallar.libloader:LibLoader:0.1-SNAPSHOT");
 		project.getExtensions().add("libLoader", extension);
 
