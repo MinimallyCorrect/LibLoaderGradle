@@ -112,7 +112,7 @@ public class LibLoaderPlugin implements Plugin<Project> {
 					while ((group = main.getValue("LibLoader-group" + j)) != null) {
 						val name = main.getValue("LibLoader-name" + j);
 						val classifier = main.getValue("LibLoader-classifier" + j);
-						val version = Version.of(main.getValue("LibLoader-version" + j));
+						val version = new Version(main.getValue("LibLoader-version" + j));
 						String key = group + '.' + name + dash(classifier);
 						val artifactVersion = new ArtifactVersion(group, name, classifier, version);
 						val previous = alreadyLibLoaded.put(key, artifactVersion);
@@ -131,7 +131,7 @@ public class LibLoaderPlugin implements Plugin<Project> {
 			if (excludedGroups.contains(id.getGroup()))
 				continue;
 
-			val currentVersion = Version.of(id.getVersion());
+			val currentVersion = new Version(id.getVersion());
 			val key = id.getGroup() + '.' + id.getName() + dash(resolvedArtifact.getClassifier());
 			val alreadyVersion = alreadyLibLoaded.get(key);
 			if (alreadyVersion != null && alreadyVersion.version.compareTo(currentVersion) >= 0)
