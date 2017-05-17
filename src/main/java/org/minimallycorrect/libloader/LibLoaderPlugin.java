@@ -1,10 +1,9 @@
-package me.nallar.libloader;
+package org.minimallycorrect.libloader;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.val;
-import me.nallar.libloader.LibLoader.Version;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -13,6 +12,7 @@ import org.gradle.api.java.archives.Attributes;
 import org.gradle.api.plugins.MavenPlugin;
 import org.gradle.api.plugins.MavenPluginConvention;
 import org.gradle.jvm.tasks.Jar;
+import org.minimallycorrect.libloader.LibLoader.Version;
 
 import java.io.*;
 import java.net.*;

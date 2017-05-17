@@ -8,7 +8,7 @@ apply plugin: 'maven'
 
 defaultTasks 'build'
 
-group="me.nallar.libloader"
+group="org.minimallycorrect.libloader"
 version = "0.1-SNAPSHOT"
 
 repositories {
@@ -21,7 +21,7 @@ configurations.all { resolutionStrategy.cacheChangingModulesFor 30, 'seconds' }
 dependencies {
 	provided gradleApi()
 	provided "org.projectlombok:lombok:1.16.6"
-	compile "me.nallar.libloader:LibLoader:0.1-SNAPSHOT"
+	compile "org.minimallycorrect.libloader:LibLoader:0.1-SNAPSHOT"
 }
 
 // Source compiler configuration
@@ -56,12 +56,12 @@ artifacts {
 
 pluginBundle {
 	website = 'http://www.gradle.org/'
-	vcsUrl = 'https://github.com/nallar/LibLoaderGradle'
+	vcsUrl = 'https://github.com/minimallycorrect/LibLoaderGradle'
 	description = 'Gradle plugin for LibLoader'
 	tags = ['minecraft']
 	plugins << {
 		modpatcher {
-			id = 'me.nallar.libloader.LibLoaderGradle'
+			id = 'org.minimallycorrect.libloader.LibLoaderGradle'
 			displayName = 'LibLoader Gradle Plugin'
 		}
 	}
