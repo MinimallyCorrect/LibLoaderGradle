@@ -189,10 +189,12 @@ public class LibLoaderPlugin implements Plugin<Project> {
 			val compileOnly = project.getConfigurations().getByName("compileOnly").getResolvedConfiguration();
 			for (ResolvedArtifact resolvedArtifact : compileOnly.getResolvedArtifacts()) {
 				val id = resolvedArtifact.getModuleVersion().getId();
-				if (id.getGroup().equals("me.nallar.libloader") && id.getName().equals("LibLoader")) {
+				if (id.getGroup().equals("org.minimallycorrect.libloader") && id.getName().equals("LibLoader")) {
 					jar.from(project.zipTree(resolvedArtifact.getFile()));
+					return;
 				}
 			}
+			throw new RuntimeException("Failed to bundle libloader");
 		}
 	}
 
