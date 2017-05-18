@@ -28,7 +28,8 @@ public class LibLoaderPlugin implements Plugin<Project> {
 		"jline",
 		"net.minecraft",
 		"org.scala-lang",
-		"org.apache.logging.log4j"
+		"org.apache.logging.log4j",
+		"org.minimallycorrect.libloader"
 	));
 	private Map<String, String> cachedHashes = new HashMap<>();
 	private LibLoaderGradleExtension extension = new LibLoaderGradleExtension();
