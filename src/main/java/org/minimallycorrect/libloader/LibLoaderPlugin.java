@@ -140,11 +140,12 @@ public class LibLoaderPlugin implements Plugin<Project> {
 				continue;
 			alreadyLibLoaded.remove(key);
 
+			val file = resolvedArtifact.getFile();
 			put(attr, "LibLoader-group" + i, id.getGroup());
 			put(attr, "LibLoader-name" + i, id.getName());
 			put(attr, "LibLoader-classifier" + i, resolvedArtifact.getClassifier());
 			put(attr, "LibLoader-version" + i, id.getVersion());
-			val hash = sha512(Files.readAllBytes(resolvedArtifact.getFile().toPath()));
+			val hash = sha512(Files.readAllBytes(file.toPath()));
 			put(attr, "LibLoader-sha512hash" + i, hash);
 
 			String url = null;
@@ -160,15 +161,15 @@ public class LibLoaderPlugin implements Plugin<Project> {
 			if (url != null) {
 				put(attr, "LibLoader-url" + i, url);
 			} else {
-				put(attr, "LibLoader-file" + i, resolvedArtifact.getFile().getName());
-				jar.from(resolvedArtifact.getFile());
+				put(attr, "LibLoader-file" + i, file.getName());
+				jar.from(file);
 			}
 
 			if (extension.log)
-				System.out.println("LibLoader included " + id.getGroup() + '.' + id.getName() + ". "
+				System.out.println("LibLoader included " + id.getGroup() + '.' + id.getName() + ": " + file.lastModified() + ". "
 					+ ((url == null) ? "Bundled in jar." : "URL set to " + url));
 
-			put(attr, "LibLoader-buildTime" + i, String.valueOf(time));
+			put(attr, "LibLoader-buildTime" + i, String.valueOf(file.lastModified()));
 			i++;
 		}
 		for (ArtifactVersion av : alreadyLibLoaded.values()) {
